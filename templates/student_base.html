@@ -1,0 +1,494 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}KPMIM Student Disciplinary System{% endblock %}</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-navy: #1e3a8a;
+            --secondary-gray: #64748b;
+            --accent-white: #ffffff;
+            --success-green: #059669;
+            --warning-yellow: #d97706;
+            --danger-red: #dc2626;
+            --light-gray: #f8fafc;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--secondary-gray);
+            line-height: 1.6;
+        }
+
+        .sidebar {
+            background: linear-gradient(135deg, var(--primary-navy) 0%, #1e40af 100%);
+            min-height: 100vh;
+            color: var(--accent-white);
+            transition: all 0.3s ease;
+            box-shadow: 2px 0 15px rgba(30, 58, 138, 0.15);
+            position: relative;
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.05) 100%);
+            pointer-events: none;
+        }
+
+        .sidebar-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .sidebar-logo-section {
+            text-align: center;
+            padding: 2rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-logo-section h5 {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+        }
+
+        .sidebar-subtext {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+
+        .sidebar .nav-link {
+            color: #ffffff !important;
+            padding: 12px 20px;
+            margin: 5px 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar .nav-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff !important;
+            transform: translateX(3px);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff !important;
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .sidebar .nav-link i {
+            color: #ffffff !important;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar .nav-link span {
+            color: #ffffff !important;
+        }
+
+        .main-content {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            padding: 0;
+        }
+
+        .navbar {
+            background: var(--accent-white);
+            box-shadow: 0 2px 15px rgba(30, 58, 138, 0.1);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            color: #1e40af !important;
+           font-size: 3rem; /* Besarkan tulisan */
+           font-weight: 600;
+           display: flex;
+           align-items: center;
+           justify-content: center;
+           width: 100%;
+           text-align: center;
+           gap: 10px; /* Jarak antara logo dan teks */
+        }
+
+        .navbar .container,
+        .navbar .container-fluid {
+            justify-content: center !important;
+        }
+
+        .student-info-badge {
+            background: linear-gradient(135deg, var(--primary-navy) 0%, #3b82f6 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .dashboard-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            background: var(--accent-white);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            background: var(--accent-white);
+        }
+
+        .card-header {
+            background: var(--light-gray);
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            color: var(--primary-navy);
+            border-radius: 12px 12px 0 0 !important;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-navy);
+            border-color: var(--primary-navy);
+            color: var(--accent-white);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #1e40af;
+            border-color: #1e40af;
+            color: var(--accent-white);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+        }
+
+        .footer {
+            background: var(--light-gray);
+            border-top: 1px solid var(--border-color);
+            padding: 1.5rem 0;
+            margin-top: auto;
+            text-align: center;
+            color: var(--secondary-gray);
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                z-index: 1000;
+                left: -250px;
+                width: 250px;
+            }
+            
+            .sidebar.show {
+                left: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+           .navbar-brand {
+            color: var(--primary-navy) !important;
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+        }
+
+        @media (min-width: 769px) {
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        /* Alert styling */
+        .alert {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-left: 4px solid var(--success-green);
+            color: #166534;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border-left: 4px solid var(--danger-red);
+            color: #dc2626;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border-left: 4px solid var(--warning-yellow);
+            color: #d97706;
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-left: 4px solid var(--primary-navy);
+            color: var(--primary-navy);
+        }
+
+        /* Loading animation */
+        .card-loading {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        /* Navigation section dividers */
+        .nav-section-divider {
+            border-color: white (255, 255, 255, 0.2);
+            margin: 1.5rem 0;
+        }
+
+        .nav-section-title {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.5rem 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Profile avatar */
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-navy), #3b82f6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            margin: 0 auto 0.5rem;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 px-0 sidebar">
+                <div class="sidebar-content">
+                    <div class="sidebar-logo-section">
+                        <img src="{% static 'images/kpmlogo.png' %}" alt="KPMIM Logo" width="100" class="sidebar-logo">
+                        <h5>Student</h5>
+                        <div class="sidebar-subtext">KPMIM Student Disciplinary System</div>
+                    </div>
+                    
+                    <nav class="nav flex-column px-3">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'student_profile' or request.resolver_match.url_name == 'student_edit_profile' %}active{% endif %}" href="{% url 'student_profile' %}">
+                            <i class="fas fa-user me-2"></i>
+                            <span>View Personal Information</span>
+                        </a>
+                        
+                        <a class="nav-link {% if 'cases' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'student_cases' %}">
+                            <i class="fas fa-clipboard-list me-2"></i>
+                            <span>View Disciplinary Case Records</span>
+                        </a>
+                        
+                        <hr class="nav-section-divider">
+                        
+                        <a class="nav-link" href="{% url 'student_logout' %}">
+                            <i class="fas fa-sign-out-alt me-2"></i>
+                            <span>Logout</span>
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 main-content">
+                <div class="content-wrapper">
+                    <!-- Top Navbar -->
+                    <nav class="navbar navbar-expand-lg navbar-light">
+                        <div class="container-fluid">
+                            <button class="btn btn-outline-primary d-md-none me-3" onclick="toggleSidebar()">
+                                <i class="fas fa-bars"></i>
+                            </button>
+                            
+                            <span class="navbar-brand mb-0 h1">
+                                <img src="{% static 'images/kpmlogo.png' %}" alt="KPMIM Logo" width="100" id="navbarLogo">
+                                KPMIM Student Disciplinary System
+                            </span>
+                        </div>
+                    </nav>
+
+                    <!-- Messages Section -->
+                    {% if messages %}
+                        <div class="container-fluid px-4 pt-3">
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-triangle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Page Content -->
+                    <div class="container-fluid p-4">
+                        {% block content %}{% endblock %}
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <footer class="footer">
+                    <div class="container-fluid">
+                        <p class="mb-0">&copy; 2025 KPMIM Student Disciplinary System. All rights reserved.</p>
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sidebar toggle for mobile
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('show');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(e) {
+            const sidebar = document.querySelector('.sidebar');
+            const toggleBtn = document.querySelector('[onclick="toggleSidebar()"]');
+            
+            if (window.innerWidth < 768 && 
+                !sidebar.contains(e.target) && 
+                !toggleBtn.contains(e.target)) {
+                sidebar.classList.remove('show');
+            }
+        });
+
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                if (alert.classList.contains('show')) {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }
+            });
+        }, 5000);
+
+        // Animate cards on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.dashboard-card, .card');
+            cards.forEach((card, index) => {
+                card.classList.add('card-loading');
+                
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                    card.classList.remove('card-loading');
+                }, index * 100);
+            });
+        });
+
+        // Enhanced navigation active state handling
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.sidebar .nav-link');
+            
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Enhanced logout handling
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutLinks = document.querySelectorAll('a[href*="logout"]');
+            
+            logoutLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i><span>Logging out...</span>';
+                    this.style.pointerEvents = 'none';
+                });
+            });
+        });
+
+        // Load logos fallback
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarLogo = document.querySelector('.sidebar-logo');
+            const navbarLogo = document.getElementById('navbarLogo');
+            
+            // Fallback logo if image fails to load
+            const fallbackLogo = 'data:image/svg+xml,' + encodeURIComponent(`
+                <svg width="60" height="60" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="48" fill="none" stroke="#1e3a8a" stroke-width="3"/>
+                    <path d="M50 15 L70 25 L70 50 C70 65 50 80 50 80 C50 80 30 65 30 50 L30 25 Z" fill="#1e3a8a" opacity="0.9"/>
+                    <rect x="42" y="35" width="16" height="20" fill="#ffffff" rx="1"/>
+                    <rect x="44" y="37" width="12" height="2" fill="#1e3a8a"/>
+                    <polygon points="50,25 52,31 58,31 53,35 55,41 50,37 45,41 47,35 42,31 48,31" fill="#ffffff"/>
+                </svg>
+            `);
+            
+            if (sidebarLogo) {
+                sidebarLogo.onerror = function() {
+                    this.src = fallbackLogo;
+                };
+            }
+            
+            if (navbarLogo) {
+                navbarLogo.onerror = function() {
+                    this.src = fallbackLogo;
+                };
+            }
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

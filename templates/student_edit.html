@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+
+{% block title %}Update Student - KPMIM Student Disciplinary System{% endblock %}
+
+{% block students_active %}active{% endblock %}
+
+{% block page_icon %}<i class="fas fa-user-edit me-2 text-warning"></i>{% endblock %}
+{% block page_title %}Update Student{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>Update Student</h1>
+            <p class="text-muted mb-0">Update student details for {{ student.name }}</p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card dashboard-card">
+                <div class="card-header text-white" style="background-color: #1e40af;">
+                    <h5 class="mb-0"><i class="fas fa-user-edit me-2"></i>Student Information</h5>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form id="updateStudentForm" method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Personal Information -->
+                        <h6 class="mb-3" style="color: #1e40af;"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="student_name" class="form-label">Student Name *</label>
+                                <input type="text" class="form-control" id="student_name" name="name" 
+                                       value="{{ student.name }}" placeholder="Enter full name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="ic_number" class="form-label">IC Number *</label>
+                                <input type="text" class="form-control" id="ic_number" name="ic_number" 
+                                       value="{{ student.ic_number }}" placeholder="e.g., 031122081234" maxlength="12" required>
+                                <div class="form-text">Must be exactly 12 digits</div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="phone_number" class="form-label">Phone Number *</label>
+                                <input type="tel" class="form-control" id="phone_number" name="phone_number" 
+                                       value="{{ student.phone_number }}" placeholder="e.g., 0123456789" required>
+                                <div class="form-text">Must start with 0 and be 10-11 digits long</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="address" class="form-label">Address *</label>
+                                <textarea class="form-control" id="address" name="address" rows="2" 
+                                          placeholder="Enter full address" required>{{ student.address }}</textarea>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Academic Information -->
+                        <h6 class="mb-3" style="color: #1e40af;"><i class="fas fa-graduation-cap me-2"></i>Academic Information</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="student_id" class="form-label">Student ID *</label>
+                                <input type="text" class="form-control" id="student_id" name="student_id" 
+                                       value="{{ student.student_id }}" placeholder="e.g., ICS23-08-068" required>
+                                <div class="form-text">Must be unique</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="program" class="form-label">Program *</label>
+                                <select class="form-select" id="program" name="program" required>
+                                    <option value="">Select Program</option>
+                                    <option value="DCS" {% if student.program == 'DCS' %}selected{% endif %}>Diploma in Computer Science</option>
+                                    <option value="DIA" {% if student.program == 'DIA' %}selected{% endif %}>Diploma in Accounting</option>
+                                    <option value="DEC" {% if student.program == 'DEC' %}selected{% endif %}>Diploma in English Communication</option>
+                                    <option value="DCD" {% if student.program == 'DCD' %}selected{% endif %}>Diploma in Creative Digital Media</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="student_class" class="form-label">Class *</label>
+                                <input type="text" class="form-control" id="student_class" name="class_name" 
+                                       value="{{ student.class_name }}" placeholder="e.g., DCS1A" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="semester" class="form-label">Semester *</label>
+                                <select class="form-select" id="semester" name="semester" required>
+                                    <option value="">Select Semester</option>
+                                    <option value="1" {% if student.semester == 1 %}selected{% endif %}>Semester 1</option>
+                                    <option value="2" {% if student.semester == 2 %}selected{% endif %}>Semester 2</option>
+                                    <option value="3" {% if student.semester == 3 %}selected{% endif %}>Semester 3</option>
+                                    <option value="4" {% if student.semester == 4 %}selected{% endif %}>Semester 4</option>
+                                    <option value="5" {% if student.semester == 5 %}selected{% endif %}>Semester 5</option>
+                                    <option value="6" {% if student.semester == 6 %}selected{% endif %}>Semester 6</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="academic_advisor" class="form-label">Academic Advisor *</label>
+                                <input type="text" class="form-control" id="academic_advisor" name="academic_advisor" 
+                                       value="{{ student.academic_advisor }}" placeholder="e.g., Dr. Ahmad bin Ali" required>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'student_list' %}" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </a>
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-save me-1"></i>Update Student
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Enhanced form validation
+    document.getElementById('updateStudentForm').addEventListener('submit', function(e) {
+        const icNumber = document.getElementById('ic_number').value;
+        const phoneNumber = document.getElementById('phone_number').value;
+        const studentId = document.getElementById('student_id').value;
+        
+        // IC validation (12 digits)
+        if (icNumber.length !== 12 || !/^\d+$/.test(icNumber)) {
+            e.preventDefault();
+            showAlert('IC Number must be exactly 12 digits', 'error');
+            return;
+        }
+        
+        // Phone validation (starts with 0 and 10-11 digits)
+        if (!/^0\d{8,9}$/.test(phoneNumber)) {
+            e.preventDefault();
+            showAlert('Phone number must start with 0 and be 10-11 digits long', 'error');
+            return;
+        }
+        
+        // Student ID validation (not empty and reasonable length)
+        if (!studentId.trim() || studentId.length < 3) {
+            e.preventDefault();
+            showAlert('Student ID must be at least 3 characters long', 'error');
+            return;
+        }
+    });
+
+    // IC Number formatting
+    document.getElementById('ic_number').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+        if (value.length > 12) value = value.substring(0, 12);
+        e.target.value = value;
+    });
+
+    // Phone number formatting
+    document.getElementById('phone_number').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+        if (value.length > 11) value = value.substring(0, 11);
+        e.target.value = value;
+    });
+
+    // Student ID formatting (remove extra spaces)
+    document.getElementById('student_id').addEventListener('input', function(e) {
+        e.target.value = e.target.value.trim();
+    });
+
+    // Helper function to show alerts
+    function showAlert(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        const cardBody = document.querySelector('.card-body');
+        cardBody.insertBefore(alertDiv, cardBody.firstChild);
+        
+        // Auto dismiss after 5 seconds
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 5000);
+    }
+
+    // Auto-hide alerts after 5 seconds
+    setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+</script>
+{% endblock %}

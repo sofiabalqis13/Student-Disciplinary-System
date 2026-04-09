@@ -1,0 +1,253 @@
+{% extends 'student_base.html' %}
+
+{% block title %}View Personal Information - KPMIM Student Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    .section-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .section-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    .section-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .section-header h5 {
+        margin: 0;
+        color: var(--primary-navy);
+        font-weight: 600;
+    }
+
+    .section-body {
+        padding: 2rem;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .detail-item {
+        display: flex;
+        align-items: flex-start;
+        padding: 1rem;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+    }
+
+    .detail-item:hover {
+        background: rgba(30, 58, 138, 0.02);
+        border-color: rgba(30, 58, 138, 0.1);
+        transform: translateY(-1px);
+    }
+
+    .detail-icon {
+        width: 45px;
+        height: 45px;
+        background: var(--primary-navy);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin-right: 1rem;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    .detail-content h6 {
+        margin: 0 0 0.25rem 0;
+        color: var(--secondary-gray);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 500;
+    }
+
+    .detail-content p {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--primary-navy);
+    }
+
+    @media (max-width: 768px) {
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .section-body {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Personal Information -->
+<div class="section-card">
+    <div class="section-header">
+        <h5><i class="fas fa-user me-2"></i>Personal Information</h5>
+    </div>
+    <div class="section-body">
+        <div class="detail-grid">
+            <div class="detail-item">
+                <div class="detail-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="detail-content">
+                    <h6>Full Name</h6>
+                    <p>{{ student.name }}</p>
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-icon">
+                    <i class="fas fa-id-card"></i>
+                </div>
+                <div class="detail-content">
+                    <h6>IC Number</h6>
+                    <p>{{ student.ic_number }}</p>
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-icon">
+                    <i class="fas fa-phone"></i>
+                </div>
+                <div class="detail-content">
+                    <h6>Phone Number</h6>
+                    <p>{{ student.phone_number|default:"Not provided" }}</p>
+                </div>
+            </div>
+            <div class="detail-item" style="grid-column: 1 / -1;">
+                <div class="detail-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="detail-content">
+                    <h6>Address</h6>
+                    <p>{{ student.address|default:"Not provided" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Academic Information -->
+<div class="section-card">
+    <div class="section-header">
+        <h5><i class="fas fa-graduation-cap me-2"></i>Academic Information</h5>
+    </div>
+    <div class="section-body">
+        <div class="detail-grid">
+            <div class="detail-item">
+                <div class="detail-icon">
+                    <i class="fas fa-id-badge"></i>
+                </div>
+                <div class="detail-content">
+                    <h6>Student ID</h6>
+                    <p>{{ student.student_id }}</p>
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-icon">
+                    <i class="fas fa-book"></i>
+                </div>
+                <div class="detail-content">
+                    <h6>Program</h6>
+                    <p>{{ student.get_program_display }}</p>
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="detail-content">
+                    <h6>Class</h6>
+                    <p>{{ student.class_name }}</p>
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-icon">
+                    <i class="fas fa-calendar"></i>
+                </div>
+                <div class="detail-content">
+                    <h6>Current Semester</h6>
+                    <p>Semester {{ student.semester }}</p>
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-icon">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <div class="detail-content">
+                    <h6>Academic Advisor</h6>
+                    <p>{{ student.academic_advisor }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate section cards
+        const sectionCards = document.querySelectorAll('.section-card');
+        sectionCards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            
+            setTimeout(() => {
+                card.style.transition = 'all 0.6s ease-out';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 200 + index * 150);
+        });
+        
+        // Animate detail items
+        const detailItems = document.querySelectorAll('.detail-item');
+        detailItems.forEach((item, index) => {
+            item.style.opacity = '0';
+            item.style.transform = 'translateX(-20px)';
+            
+            setTimeout(() => {
+                item.style.transition = 'all 0.4s ease-out';
+                item.style.opacity = '1';
+                item.style.transform = 'translateX(0)';
+            }, 600 + index * 50);
+        });
+        
+        // Enhanced hover effects for detail items
+        detailItems.forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                const icon = this.querySelector('.detail-icon');
+                if (icon) {
+                    icon.style.transform = 'scale(1.1) rotate(5deg)';
+                    icon.style.transition = 'transform 0.3s ease';
+                }
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                const icon = this.querySelector('.detail-icon');
+                if (icon) {
+                    icon.style.transform = 'scale(1) rotate(0deg)';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block title %}Update Disciplinary Case - KPMIM Student Disciplinary System{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1><i class="fas fa-edit me-2"></i>Update Disciplinary Case</h1>
+            <p class="text-muted mb-0">Update case information</p>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Case Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="editCaseForm">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="case_type" class="form-label">Case Type <span class="text-danger">*</span></label>
+                                    <select class="form-select" name="case_type" id="case_type" required>
+                                        <option value="">Select Case Type</option>
+                                        <option value="academic_misconduct" {% if case.case_type == 'academic_misconduct' %}selected{% endif %}>Academic Misconduct</option>
+                                        <option value="behavioral_issue" {% if case.case_type == 'behavioral_issue' %}selected{% endif %}>Behavioral Issue</option>
+                                        <option value="attendance_problem" {% if case.case_type == 'attendance_problem' %}selected{% endif %}>Attendance Problem</option>
+                                        <option value="property_damage" {% if case.case_type == 'property_damage' %}selected{% endif %}>Property Damage</option>
+                                        <option value="harassment" {% if case.case_type == 'harassment' %}selected{% endif %}>Harassment</option>
+                                        <option value="other" {% if case.case_type == 'other' %}selected{% endif %}>Other</option>
+                                    </select>
+                                    <div class="invalid-feedback">Please select a case type.</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="incident_date" class="form-label">Incident Date <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" name="incident_date" id="incident_date" value="{{ case.incident_date|date:'Y-m-d' }}" required>
+                                    <div class="invalid-feedback">Please provide a valid incident date.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label"> Case Description <span class="text-danger">*</span></label>
+                            <textarea class="form-control" name="description" id="description" rows="4" required>{{ case.description }}</textarea>
+                            <div class="invalid-feedback">Description is required and cannot be empty.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
+                            <select class="form-select" name="status" id="status" required>
+                                <option value="">Select Status</option>
+                                <option value="pending" {% if case.status == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="under_review" {% if case.status == 'under_review' %}selected{% endif %}>Under Review</option>
+                                <option value="resolved" {% if case.status == 'resolved' %}selected{% endif %}>Resolved</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a status.</div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                           <button type="submit" class="btn" style="background-color: #800000; border-color: #800000; color: #ffffff;" id="submitBtn">
+                              <i class="fas fa-save me-1"></i>Update Case
+                           </button>
+                            <a href="{% url 'disciplinary_cases' %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Student Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="avatar bg-primary rounded-circle me-3" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                            <span class="text-white fw-bold">{{ student.name|first|upper }}</span>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">{{ student.name }}</h6>
+                            <small class="text-muted">{{ student.student_id }}</small>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <p><strong>Program:</strong> {{ student.get_program_display }}</p>
+                    <p><strong>Class:</strong> {{ student.class_name }}</p>
+                    <p><strong>Semester:</strong> {{ student.semester }}</p>
+                    <p><strong>IC Number:</strong> {{ student.ic_number }}</p>
+                    <p><strong>Phone:</strong> {{ student.phone_number }}</p>
+                </div>
+            </div>
+
+           
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('editCaseForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Form validation
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        let isValid = true;
+        const requiredFields = form.querySelectorAll('[required]');
+        
+        // Remove previous validation states
+        requiredFields.forEach(field => {
+            field.classList.remove('is-invalid');
+        });
+
+        // Check each required field
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.classList.add('is-invalid');
+                isValid = false;
+            }
+        });
+
+        if (isValid) {
+            // Show loading state
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Updating...';
+            submitBtn.disabled = true;
+            
+            // Submit form
+            form.submit();
+        } else {
+            // Scroll to first invalid field
+            const firstInvalid = form.querySelector('.is-invalid');
+            if (firstInvalid) {
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstInvalid.focus();
+            }
+        }
+    });
+
+    // Remove validation state on input
+    form.addEventListener('input', function(e) {
+        if (e.target.classList.contains('is-invalid')) {
+            e.target.classList.remove('is-invalid');
+        }
+    });
+});
+</script>
+{% endblock %}

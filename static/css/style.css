@@ -1,0 +1,64 @@
+/* Custom styles for Student Disciplinary System */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.card {
+    margin-bottom: 20px;
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075);
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.table-responsive {
+    margin-top: 20px;
+}
+
+.btn-group-action {
+    white-space: nowrap;
+}
+
+/* Status badges */
+.badge.bg-pending {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.badge.bg-under_review {
+    background-color: #17a2b8;
+}
+
+.badge.bg-resolved {
+    background-color: #28a745;
+}
+
+/* Dashboard cards */
+.card.text-white h2 {
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+/* Form styling */
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+}

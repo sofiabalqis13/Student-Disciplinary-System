@@ -1,0 +1,828 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portal Login - KPMIM</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-navy: #1e3a8a;      /* Deep Navy Blue - Authority & Trust */
+            --secondary-gray: #64748b;     /* Professional Gray - Balance & Stability */
+            --accent-white: #ffffff;       /* Clean White - Clarity & Transparency */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--secondary-gray);
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background-color: var(--primary-navy);
+            color: var(--accent-white);
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(30, 58, 138, 0.1);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--accent-white);
+        }
+
+        /* Main Section with Interactive Background */
+        .main-section {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 2rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Interactive Background Elements */
+        .bg-shapes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .shape {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .shape:nth-child(1) {
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape:nth-child(2) {
+            top: 20%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+
+        .shape:nth-child(3) {
+            bottom: 20%;
+            left: 15%;
+            animation-delay: 4s;
+        }
+
+        .shape:nth-child(4) {
+            bottom: 10%;
+            right: 10%;
+            animation-delay: 1s;
+        }
+
+        .shape:nth-child(5) {
+            top: 50%;
+            left: 5%;
+            animation-delay: 3s;
+        }
+
+        .shape:nth-child(6) {
+            top: 60%;
+            right: 5%;
+            animation-delay: 5s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(5deg); }
+            50% { transform: translateY(-10px) rotate(-5deg); }
+            75% { transform: translateY(-15px) rotate(3deg); }
+        }
+
+        /* Interactive mouse effect */
+        .interactive-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .mouse-dot {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(30, 58, 138, 0.05) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .main-section .container {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Login Container */
+        .login-container {
+            background: var(--accent-white);
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(30, 58, 138, 0.12);
+            overflow: hidden;
+            max-width: 500px;
+            margin: 0 auto;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            background-color: var(--primary-navy);
+            color: var(--accent-white);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .login-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle fill="rgba(255,255,255,0.1)" cx="50" cy="50" r="40"/></svg>');
+            animation: rotate 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .login-header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .login-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            backdrop-filter: blur(10px);
+            font-size: 2rem;
+        }
+
+        .login-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .college-info {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-top: 1rem;
+            backdrop-filter: blur(10px);
+            font-size: 0.85rem;
+        }
+
+        .login-body {
+            padding: 2.5rem 2rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--primary-navy);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-navy);
+            box-shadow: 0 0 0 0.2rem rgba(30, 58, 138, 0.15);
+            background: var(--accent-white);
+        }
+
+        .input-icon {
+            position: relative;
+        }
+
+        .input-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary-gray);
+            z-index: 2;
+        }
+
+        .input-icon .form-control {
+            padding-left: 45px;
+        }
+
+        .input-help {
+            font-size: 0.75rem;
+            color: var(--secondary-gray);
+            margin-top: 0.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .btn-login {
+            background-color: var(--primary-navy);
+            color: var(--accent-white);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-login:hover {
+            background-color: #1e40af;
+            color: var(--accent-white);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.3);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.7;
+            transform: none;
+        }
+
+        .btn-login.loading .btn-text {
+            display: none;
+        }
+
+        .btn-login.loading .btn-loading {
+            display: inline-block;
+        }
+
+        .btn-loading {
+            display: none;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary-navy);
+            border-color: var(--primary-navy);
+        }
+
+        .form-check-label {
+            color: var(--secondary-gray);
+            font-size: 0.9rem;
+        }
+
+        .text-link {
+            color: var(--primary-navy);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .text-link:hover {
+            color: #1e40af;
+            text-decoration: underline;
+        }
+
+        .alert {
+            border-radius: 8px;
+            border: none;
+            padding: 12px 16px;
+            font-size: 0.9rem;
+        }
+
+        .alert-danger {
+            background-color: #fef2f2;
+            color: #dc2626;
+        }
+
+        .alert-info {
+            background-color: #eff6ff;
+            color: #2563eb;
+        }
+
+        .system-info {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .info-item {
+            text-align: center;
+            padding: 0.5rem;
+        }
+
+        .info-item i {
+            font-size: 1.2rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-item small {
+            font-size: 0.8rem;
+            color: var(--secondary-gray);
+        }
+
+        .login-footer {
+            background: #f8fafc;
+            padding: 1.5rem 2rem;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .back-link {
+            color: var(--secondary-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: var(--primary-navy);
+        }
+
+        .help-text {
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            color: var(--secondary-gray);
+        }
+
+        .help-text a {
+            color: var(--primary-navy);
+            text-decoration: none;
+        }
+
+        .help-text a:hover {
+            text-decoration: underline;
+        }
+
+        .security-notice {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Input validation styling */
+        .form-control.valid {
+            border-color: #28a745;
+        }
+
+        .form-control.invalid {
+            border-color: #dc3545;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-section {
+                padding: 1rem 0;
+            }
+            
+            .login-container {
+                margin: 1rem;
+            }
+            
+            .login-header {
+                padding: 2rem 1.5rem;
+            }
+            
+            .login-body {
+                padding: 2rem 1.5rem;
+            }
+            
+            .login-footer {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+  <header class="header">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-center">
+            <div class="logo-container me-3">
+                <img src="{% static 'images/kpmlogo.png' %}" alt="KPMIM Logo" width="100">
+            </div>
+            <div class="logo">KPMIM Student Disciplinary System</div>
+        </div>
+    </div>
+</header>
+
+    <!-- Main Section -->
+    <section class="main-section">
+        <!-- Interactive Background -->
+        <div class="bg-shapes">
+            <div class="shape">
+                <svg width="60" height="60" viewBox="0 0 60 60">
+                    <circle cx="30" cy="30" r="25" fill="#1e3a8a"/>
+                </svg>
+            </div>
+            <div class="shape">
+                <svg width="40" height="40" viewBox="0 0 40 40">
+                    <rect x="5" y="5" width="30" height="30" fill="#64748b" rx="5"/>
+                </svg>
+            </div>
+            <div class="shape">
+                <svg width="50" height="50" viewBox="0 0 50 50">
+                    <polygon points="25,5 45,40 5,40" fill="#1e3a8a"/>
+                </svg>
+            </div>
+            <div class="shape">
+                <svg width="35" height="35" viewBox="0 0 35 35">
+                    <circle cx="17.5" cy="17.5" r="15" fill="#64748b"/>
+                </svg>
+            </div>
+            <div class="shape">
+                <svg width="45" height="45" viewBox="0 0 45 45">
+                    <rect x="5" y="5" width="35" height="35" fill="#1e3a8a" rx="8"/>
+                </svg>
+            </div>
+            <div class="shape">
+                <svg width="30" height="30" viewBox="0 0 30 30">
+                    <polygon points="15,2 28,26 2,26" fill="#64748b"/>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- Mouse interaction effect -->
+        <div class="interactive-bg">
+            <div class="mouse-dot" id="mouseDot"></div>
+        </div>
+
+        <div class="container">
+            <div class="login-container">
+                <!-- Header -->
+                <div class="login-header">
+                    <div class="login-header-content">
+                        <div class="login-icon">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <h3 class="login-title">Student Login</h3>
+                        <p class="login-subtitle">KPMIM Student Disciplinary System</p>
+                        <div class="college-info">
+                            <i class="fas fa-shield-alt me-1"></i>Secure Student Access
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Login Form -->
+                <div class="login-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} mb-3" role="alert">
+                                <i class="fas fa-exclamation-circle me-2"></i>{{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" id="studentLoginForm">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="student_id" class="form-label">
+                                <i class="fas fa-user me-1"></i>Student ID
+                            </label>
+                            <div class="input-icon">
+                                <i class="fas fa-user"></i>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="student_id" 
+                                       name="student_id" 
+                                       placeholder="Enter your student ID"
+                                       required 
+                                       autocomplete="username"
+                                       autofocus>
+                            </div>
+                            <div class="input-help">Example: 2024123456</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="ic_number" class="form-label">
+                                <i class="fas fa-id-card me-1"></i>IC Number
+                            </label>
+                            <div class="input-icon">
+                                <i class="fas fa-id-card"></i>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="ic_number" 
+                                       name="ic_number" 
+                                       placeholder="12 digits without dashes"
+                                       required 
+                                       maxlength="12" 
+                                       pattern="[0-9]{12}"
+                                       inputmode="numeric">
+                            </div>
+                            <div class="input-help">12 digits only (e.g., 991231085678)</div>
+                        </div>
+
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-login" id="loginBtn">
+                                <span class="btn-text">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                                </span>
+                                <span class="btn-loading">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>Accessing...
+                                </span>
+                            </button>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="rememberMe">
+                                    <label class="form-check-label" for="rememberMe">
+                                        Remember me
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-6 text-end">
+                                <a href="#" class="text-link" onclick="showHelp()">
+                                    Need Help?
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+
+                    
+                </div>
+
+                <!-- Footer -->
+                <div class="login-footer">
+                    <a href="{% url 'landing_page' %}" class="back-link">
+                        <i class="fas fa-arrow-left me-1"></i>Back to Home
+                    </a>
+                </div>
+            </div>
+
+            <!-- Security Notice -->
+            <div class="security-notice">
+                <i class="fas fa-lock me-1"></i>
+                Secure student portal for disciplinary record access
+            </div>
+        </div>
+    </section>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Load user's logo image (same as admin login page)
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const logoImg = document.getElementById('kpmimLogo');
+                
+                if (window.fs && window.fs.readFile) {
+                    try {
+                        const imageData = await window.fs.readFile('logo.png');
+                        const blob = new Blob([imageData], { type: 'image/png' });
+                        const imageUrl = URL.createObjectURL(blob);
+                        logoImg.src = imageUrl;
+                    } catch (error) {
+                        logoImg.src = 'data:image/svg+xml,' + encodeURIComponent(`
+                            <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="50" cy="50" r="48" fill="none" stroke="#ffffff" stroke-width="3"/>
+                                <path d="M50 15 L70 25 L70 50 C70 65 50 80 50 80 C50 80 30 65 30 50 L30 25 Z" fill="#ffffff" opacity="0.9"/>
+                                <rect x="42" y="35" width="16" height="20" fill="#1e3a8a" rx="1"/>
+                                <rect x="44" y="37" width="12" height="2" fill="#ffffff"/>
+                                <polygon points="50,25 52,31 58,31 53,35 55,41 50,37 45,41 47,35 42,31 48,31" fill="#1e3a8a"/>
+                            </svg>
+                        `);
+                    }
+                } else {
+                    logoImg.src = 'data:image/svg+xml,' + encodeURIComponent(`
+                        <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="50" cy="50" r="48" fill="none" stroke="#ffffff" stroke-width="3"/>
+                            <path d="M50 15 L70 25 L70 50 C70 65 50 80 50 80 C50 80 30 65 30 50 L30 25 Z" fill="#ffffff" opacity="0.9"/>
+                            <rect x="42" y="35" width="16" height="20" fill="#1e3a8a" rx="1"/>
+                            <rect x="44" y="37" width="12" height="2" fill="#ffffff"/>
+                            <polygon points="50,25 52,31 58,31 53,35 55,41 50,37 45,41 47,35 42,31 48,31" fill="#1e3a8a"/>
+                        </svg>
+                    `);
+                }
+            } catch (error) {
+                console.log('Using default logo');
+            }
+        });
+
+        // Interactive background mouse effect (same as admin login page)
+        document.addEventListener('mousemove', function(e) {
+            const mouseDot = document.getElementById('mouseDot');
+            const mainSection = document.querySelector('.main-section');
+            const rect = mainSection.getBoundingClientRect();
+            
+            if (e.clientY >= rect.top && e.clientY <= rect.bottom) {
+                mouseDot.style.left = e.clientX + 'px';
+                mouseDot.style.top = e.clientY + 'px';
+                mouseDot.style.opacity = '1';
+            } else {
+                mouseDot.style.opacity = '0';
+            }
+        });
+
+        document.querySelector('.main-section').addEventListener('mouseleave', function() {
+            const mouseDot = document.getElementById('mouseDot');
+            mouseDot.style.opacity = '0';
+        });
+
+        // Form submission handling
+        document.getElementById('studentLoginForm').addEventListener('submit', function(e) {
+            if (!validateForm()) {
+                e.preventDefault();
+                return;
+            }
+
+            const btn = document.getElementById('loginBtn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+        });
+
+        // IC Number validation and formatting
+        document.getElementById('ic_number').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            if (value.length > 12) {
+                value = value.substring(0, 12);
+            }
+            
+            e.target.value = value;
+            
+            // Visual feedback
+            if (value.length === 12) {
+                e.target.classList.remove('invalid');
+                e.target.classList.add('valid');
+            } else if (value.length > 0) {
+                e.target.classList.remove('valid');
+                e.target.classList.add('invalid');
+            } else {
+                e.target.classList.remove('valid', 'invalid');
+            }
+        });
+
+        // Student ID validation
+        document.getElementById('student_id').addEventListener('input', function(e) {
+            const value = e.target.value.trim();
+            
+            if (value.length >= 8) {
+                e.target.classList.remove('invalid');
+                e.target.classList.add('valid');
+            } else if (value.length > 0) {
+                e.target.classList.remove('valid');
+                e.target.classList.add('invalid');
+            } else {
+                e.target.classList.remove('valid', 'invalid');
+            }
+        });
+
+        // Form validation
+        function validateForm() {
+            const studentId = document.getElementById('student_id').value.trim();
+            const icNumber = document.getElementById('ic_number').value.trim();
+            
+            if (studentId.length < 8) {
+                showAlert('Student ID must be at least 8 characters long', 'danger');
+                return false;
+            }
+            
+            if (icNumber.length !== 12 || !/^\d{12}$/.test(icNumber)) {
+                showAlert('IC Number must be exactly 12 digits', 'danger');
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Show alert messages
+        function showAlert(message, type) {
+            // Remove existing alerts
+            const existingAlerts = document.querySelectorAll('.alert');
+            existingAlerts.forEach(alert => alert.remove());
+            
+            // Create new alert
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} mb-3`;
+            alertDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i>${message}`;
+            
+            // Insert at the beginning of login body
+            const form = document.getElementById('studentLoginForm');
+            form.parentNode.insertBefore(alertDiv, form);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // Help function
+        function showHelp() {
+            showAlert('Use your Student ID and 12-digit IC Number to login. Contact Student Affairs if you need assistance.', 'info');
+        }
+
+        // Enhanced keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const studentId = document.getElementById('student_id');
+                const icNumber = document.getElementById('ic_number');
+                
+                if (document.activeElement === studentId && studentId.value.trim()) {
+                    icNumber.focus();
+                    e.preventDefault();
+                }
+            }
+        });
+
+        // Auto-focus on first empty field
+        document.addEventListener('DOMContentLoaded', function() {
+            const studentId = document.getElementById('student_id');
+            const icNumber = document.getElementById('ic_number');
+            
+            if (!studentId.value) {
+                studentId.focus();
+            } else if (!icNumber.value) {
+                icNumber.focus();
+            }
+        });
+
+        // Animate form elements on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const elements = document.querySelectorAll('.form-control, .btn-login');
+            elements.forEach((element, index) => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    element.style.transition = 'all 0.5s ease';
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+
+        // Reset button state on page reload
+        window.addEventListener('pageshow', function() {
+            const btn = document.getElementById('loginBtn');
+            btn.classList.remove('loading');
+            btn.disabled = false;
+        });
+    </script>
+</body>
+</html>

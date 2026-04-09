@@ -1,0 +1,290 @@
+{% extends 'student_base.html' %}
+
+{% block title %}View Disciplinary Case Records - KPMIM Student Disciplinary System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .case-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border-left: 5px solid;
+    }
+
+    .case-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .case-card.pending {
+        border-left-color: #800000;
+    }
+
+    .case-card.under-review {
+        border-left-color: #800000;
+    }
+
+    .case-card.resolved {
+        border-left-color: #800000;
+    }
+
+    .case-header {
+        padding: 1.5rem 2rem 1rem 2rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .case-body {
+        padding: 1.5rem 2rem;
+    }
+
+    .case-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--primary-navy);
+        margin-bottom: 0.5rem;
+    }
+
+    .case-id {
+        font-size: 0.9rem;
+        color: var(--secondary-gray);
+        margin-bottom: 1rem;
+    }
+
+    .case-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .case-date {
+        display: flex;
+        align-items: center;
+        color: var(--secondary-gray);
+        font-size: 0.9rem;
+    }
+
+    .case-status {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-pending {
+        background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%);
+        color: #92400e;
+        border: 1px solid var(--warning-yellow);
+    }
+
+    .status-under-review {
+        background: linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%);
+        color: #1e40af;
+        border: 1px solid #06b6d4;
+    }
+
+    .status-resolved {
+        background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+        color: #166534;
+        border: 1px solid var(--success-green);
+    }
+
+    .case-description {
+        color: var(--secondary-gray);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    .case-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .detail-icon {
+        width: 30px;
+        height: 30px;
+        background: var(--light-gray);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-navy);
+        font-size: 0.9rem;
+    }
+
+    .detail-text {
+        font-size: 0.9rem;
+        color: var(--secondary-gray);
+    }
+
+    .no-cases {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .no-cases-icon {
+        font-size: 4rem;
+        color: var(--success-green);
+        margin-bottom: 1.5rem;
+        opacity: 0.7;
+    }
+
+    .no-cases h4 {
+        color: var(--success-green);
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .no-cases p {
+        color: var(--secondary-gray);
+        font-size: 1.1rem;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    @media (max-width: 768px) {
+        .case-meta {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .case-details {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Cases List -->
+<div class="cases-container">
+    {% if disciplinary_cases %}
+        {% for case in disciplinary_cases %}
+        <div class="case-card 
+            {% if case.status == 'pending' %}pending
+            {% elif case.status == 'under_review' %}under-review
+            {% else %}resolved{% endif %}">
+            
+            <div class="case-header">
+                <div class="case-title">{{ case.get_case_type_display }}</div>
+                <div class="case-id">Case ID: {{ case.case_id }}</div>
+                <div class="case-meta">
+                    <div class="case-date">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        {{ case.incident_date|date:"F d, Y" }}
+                    </div>
+                    <div class="case-status 
+                        {% if case.status == 'pending' %}status-pending
+                        {% elif case.status == 'under_review' %}status-under-review
+                        {% else %}status-resolved{% endif %}">
+                        <i class="fas fa-
+                            {% if case.status == 'pending' %}clock
+                            {% elif case.status == 'under_review' %}search
+                            {% else %}check-circle{% endif %} me-1"></i>
+                        {{ case.get_status_display }}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="case-body">
+                <div class="case-description">
+                    {{ case.description }}
+                </div>
+                
+                <div class="case-details">
+                    {% if case.location %}
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="detail-text">
+                            <strong>Location:</strong> {{ case.location }}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if case.reported_by %}
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="detail-text">
+                            <strong>Reported by:</strong> {{ case.reported_by }}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if case.action_taken %}
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-gavel"></i>
+                        </div>
+                        <div class="detail-text">
+                            <strong>Action:</strong> {{ case.action_taken }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-cases">
+            <div class="no-cases-icon">
+                <i class="fas fa-star"></i>
+            </div>
+            <h4>Excellent Record!</h4>
+            <p>You have no disciplinary cases on record. Keep up the outstanding work and continue following college policies!</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate cards on load
+        const caseCards = document.querySelectorAll('.case-card');
+        caseCards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                card.style.transition = 'all 0.5s ease-out';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100 + index * 100);
+        });
+        
+        // Enhanced hover effects
+        caseCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(-2px)';
+            });
+        });
+    });
+</script>
+{% endblock %}

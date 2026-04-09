@@ -1,0 +1,654 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}KPMIM Student Disciplinary System{% endblock %}</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-navy: #1e3a8a;      /* Deep Navy Blue - Authority & Trust */
+            --secondary-gray: #64748b;     /* Professional Gray - Balance & Stability */
+            --accent-white: #ffffff;       /* Clean White - Clarity & Transparency */
+            --light-gray: #f8fafc;        /* Light background */
+            --border-color: #e2e8f0;      /* Border color */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--light-gray);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--secondary-gray);
+            line-height: 1.6;
+        }
+
+        .sidebar {
+            background-color: var(--primary-navy);
+            min-height: 100vh;
+            color: var(--accent-white);
+            transition: all 0.3s ease;
+            box-shadow: 2px 0 10px rgba(30, 58, 138, 0.1);
+            position: relative;
+        }
+
+        .sidebar-subtext {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            font-weight: 400;
+        }
+
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.05) 100%);
+            pointer-events: none;
+        }
+
+        .sidebar-content {
+            position: relative;
+            z-index: 2;
+        }
+
+       .sidebar .nav-link {
+           color: #ffffff !important;  /* <-- TUKAR: Pure white dengan !important */
+           padding: 12px 20px;
+           margin: 5px 0;
+           border-radius: 8px;
+           transition: all 0.3s ease;
+           border: 1px solid transparent;
+        }
+
+       .sidebar .nav-link:hover {
+           background: rgba(255, 255, 255, 0.1);
+           color: #ffffff !important;  /* Kekalkan putih */
+           transform: translateX(3px);
+           border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar .nav-link.active {
+           background: rgba(255, 255, 255, 0.15);
+           color: #ffffff !important;  /* <-- TUKAR: Pure white dengan !important */
+           border-color: rgba(255, 255, 255, 0.3);
+           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+/* TAMBAH BARU: */
+        .sidebar .nav-link i {
+          color: #ffffff !important;  /* <-- Icons jadi putih */
+        }
+
+       .sidebar .nav-link span {
+         color: #ffffff !important;  /* <-- Text spans jadi putih */
+        }
+        .sidebar-logo-section {
+            text-align: center;
+            padding: 2rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.453);
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-logo-section h5 {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-logo-section small {
+            opacity: 0.8;
+            font-size: 0.8rem;
+        }
+
+        .main-content {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            padding: 0;
+        }
+
+        .navbar {
+            background: var(--accent-white);
+            box-shadow: 0 2px 10px rgba(30, 58, 138, 0.1);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            color: var(--primary-navy) !important;
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        .nav-link {
+            color: var(--secondary-gray) !important;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-navy) !important;
+        }
+
+        .dropdown-menu {
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px rgba(30, 58, 138, 0.1);
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--light-gray);
+            color: var(--primary-navy);
+        }
+
+        .dashboard-card {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(30, 58, 138, 0.08);
+            transition: all 0.3s ease;
+            background: var(--accent-white);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(30, 58, 138, 0.12);
+        }
+
+        .card {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(30, 58, 138, 0.08);
+            background: var(--accent-white);
+        }
+
+        .card-header {
+            background: var(--light-gray);
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            color: var(--primary-navy);
+        }
+
+        .logo-img {
+            height: 32px;
+            width: auto;
+        }
+
+        .sidebar-logo {
+            height: 48px;
+            width: auto;
+            filter: brightness(0) invert(1);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-navy);
+            border-color: var(--primary-navy);
+            color: var(--accent-white);
+        }
+
+        .btn-primary:hover {
+            background-color: #1e40af;
+            border-color: #1e40af;
+            color: var(--accent-white);
+        }
+
+        .btn-outline-primary {
+            border-color: var(--primary-navy);
+            color: var(--primary-navy);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary-navy);
+            border-color: var(--primary-navy);
+            color: var(--accent-white);
+        }
+
+        .footer {
+            background: var(--light-gray);
+            border-top: 1px solid var(--border-color);
+            padding: 1.5rem 0;
+            margin-top: auto;
+        }
+
+        .footer p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--secondary-gray);
+            text-align: center;
+        }
+
+        .footer-bottom {
+            background-color: var(--primary-navy);
+            color: var(--accent-white);
+            padding: 20px 0;
+            text-align: center;
+            border-top: 1px solid rgba(30, 58, 138, 0.2);
+        }
+
+        .footer-bottom p {
+            margin: 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Sidebar navigation improvements */
+        .nav-section-divider {
+            border-color:white (255, 255, 255, 0.2);
+            margin: 1.5rem 0;
+        }
+
+        .nav-section-title {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.5rem 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Collapse menu styling */
+        .collapse .nav-link {
+            padding: 8px 20px 8px 40px;
+            font-size: 0.9rem;
+            margin: 2px 0;
+        }
+
+        .collapse .nav-link:hover {
+            transform: translateX(5px);
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                z-index: 1000;
+                left: -250px;
+                width: 250px;
+            }
+            
+            .sidebar.show {
+                left: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        /* Loading animation for cards */
+        .card-loading {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        /* Table styling */
+        .table {
+            background: var(--accent-white);
+        }
+
+        .table thead th {
+            background-color: var(--light-gray);
+            border-bottom: 1px solid var(--border-color);
+            color: var(--primary-navy);
+            font-weight: 600;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: var(--light-gray);
+        }
+
+        /* Alert styling */
+        .alert-info {
+            background-color: #eff6ff;
+            border-color: #bfdbfe;
+            color: var(--primary-navy);
+        }
+
+        .alert-success {
+            background-color: #f0fdf4;
+            border-color: #bbf7d0;
+            color: #166534;
+        }
+
+        .alert-danger {
+            background-color: #fef2f2;
+            border-color: #fecaca;
+            color: #dc2626;
+        }
+
+        .alert-warning {
+            background-color: #fffbeb;
+            border-color: #fed7aa;
+            color: #d97706;
+        }
+
+        /* LOGOUT NOTIFICATION - ADD THIS */
+        .logout-notification {
+           position: fixed;
+           top: 20px;
+           right: 20px;
+           background: white;
+           border: 1px solid #d1fae5;
+           border-left: 5px solid #10b981;
+           border-radius: 8px;
+           padding: 15px 20px;
+           box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+           z-index: 9999;
+           min-width: 300px;
+           transform: translateX(400px);
+           transition: transform 0.3s ease;
+        }
+
+       .logout-notification.show {
+          transform: translateX(0);
+        }
+
+       .logout-notification .close-btn {
+         background: none;
+         border: none;
+         font-size: 18px;
+         color: #6b7280;
+         cursor: pointer;
+         float: right;
+         margin-top: -5px;
+        }
+
+       .logout-notification .icon {
+         color: #10b981;
+         margin-right: 10px;
+        }
+
+        .logout-notification .message {
+          color: #065f46;
+         font-weight: 500;
+        }
+
+       .logout-notification .time {
+         color: #6b7280;
+         font-size: 12px;
+         margin-top: 5px;
+        }
+
+        /* Badge styling */
+        .badge {
+            font-weight: 500;
+        }
+
+        .badge.bg-primary {
+            background-color: var(--primary-navy) !important;
+        }
+
+        /* Form styling */
+        .form-control:focus {
+            border-color: var(--primary-navy);
+            box-shadow: 0 0 0 0.2rem rgba(30, 58, 138, 0.15);
+        }
+
+        .form-select:focus {
+            border-color: var(--primary-navy);
+            box-shadow: 0 0 0 0.2rem rgba(30, 58, 138, 0.15);
+        }
+
+        /* Pagination styling */
+        .page-link {
+            color: var(--primary-navy);
+        }
+
+        .page-link:hover {
+            color: #1e40af;
+            background-color: var(--light-gray);
+            border-color: var(--border-color);
+        }
+
+        .page-item.active .page-link {
+            background-color: var(--primary-navy);
+            border-color: var(--primary-navy);
+        }
+
+        .navbar-brand {
+           color: #1e40af !important;
+           font-size: 3rem; /* Besarkan tulisan */
+           font-weight: 600;
+           display: flex;
+           align-items: center;
+           justify-content: center;
+           width: 100%;
+           text-align: center;
+           gap: 10px; /* Jarak antara logo dan teks */
+        }
+
+        .navbar .container,
+        .navbar .container-fluid {
+           justify-content: center !important; /* Tengah dalam navbar */
+        }
+
+        
+
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 px-0 sidebar">
+                <div class="sidebar-content">
+                    <div class="sidebar-logo-section">
+                        <img src="{% static 'images/kpmlogo.png' %}" alt="KPMIM Logo" width="100">
+                        <h5>JDK Supervisor</h5>
+                        <div class="sidebar-subtext">KPMIM Student Disciplinary System</div>
+                    </div>
+                    
+                    <nav class="nav flex-column px-3">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" href="{% url 'admin_dashboard' %}">
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </a>
+                        
+                        <div class="nav-item">
+                            <a class="nav-link {% if 'student' in request.resolver_match.url_name %}active{% endif %}" href="#" data-bs-toggle="collapse" data-bs-target="#studentsCollapse" aria-expanded="{% if 'student' in request.resolver_match.url_name %}true{% else %}false{% endif %}">
+                                <i class="fas fa-users me-2"></i>Maintain Student
+                                <i class="fas fa-chevron-down ms-auto"></i>
+                            </a>
+                            <div class="collapse {% if 'student' in request.resolver_match.url_name %}show{% endif %}" id="studentsCollapse">
+                                <a class="nav-link {% if request.resolver_match.url_name == 'add_student' %}active{% endif %}" href="{% url 'add_student' %}">
+                                    <i class="fas fa-user-plus me-2"></i>Add New Student
+                                </a>
+                                <a class="nav-link {% if request.resolver_match.url_name == 'student_list' %}active{% endif %}" href="{% url 'student_list' %}">
+                                    <i class="fas fa-list me-2"></i>View/Update/Delete 
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <a class="nav-link {% if 'case' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'disciplinary_cases' %}">
+                            <i class="fas fa-folder-open me-2"></i> Maintain Disciplinary Cases
+                        </a>
+                        
+                        <a class="nav-link {% if 'report' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'monthly_report' %}">
+                            <i class="fas fa-chart-bar me-2"></i>Generate Reports
+                        </a>
+                        
+                        <hr class="nav-section-divider">
+                        <a class="nav-link" href="{% url 'admin_logout' %}">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 main-content">
+                <div class="content-wrapper">
+                    <!-- Top Navbar -->
+                    <nav class="navbar navbar-expand-lg navbar-light">
+                        <div class="container-fluid">
+                            <button class="btn btn-outline-primary d-md-none me-3" onclick="toggleSidebar()">
+                                <i class="fas fa-bars"></i>
+                            </button>
+                            
+                            <span class="navbar-brand mb-0 h1">
+                                <img src="{% static 'images/kpmlogo.png' %}" alt="KPMIM Logo" width="100">
+                                KPMIM Student Disciplinary System
+                            </span>
+
+                            
+                        
+                        </div>
+                    </nav>
+
+                    <!-- Page Content -->
+                    <div class="container-fluid p-4">
+                        {% block content %}{% endblock %}
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <footer class="footer">
+                    <div class="container-fluid">
+                        <p>&copy; 2025 KPMIM Student Disciplinary System. All rights reserved.</p>
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+   // Enhanced logout notification system
+
+// Enhanced logout links
+document.addEventListener('DOMContentLoaded', function() {
+    const logoutLinks = document.querySelectorAll('a[href*="logout"]');
+    
+    logoutLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Don't prevent default, let Django handle the logout
+            // Just add visual feedback
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Logging out...';
+            this.style.pointerEvents = 'none';
+        });
+    });
+});
+    
+    // Remove existing modal if any
+    const existingModal = document.getElementById('logoutModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to page
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('logoutModal'));
+    modal.show();
+
+        // Load logos (same logic as landing and login pages)
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const sidebarLogo = document.getElementById('sidebarLogo');
+                const navbarLogo = document.getElementById('navbarLogo');
+                
+                if (window.fs && window.fs.readFile) {
+                    try {
+                        const imageData = await window.fs.readFile('logo.png');
+                        const blob = new Blob([imageData], { type: 'image/png' });
+                        const imageUrl = URL.createObjectURL(blob);
+                        sidebarLogo.src = imageUrl;
+                        navbarLogo.src = imageUrl;
+                    } catch (error) {
+                        // Fallback logos
+                        const fallbackLogo = 'data:image/svg+xml,' + encodeURIComponent(`
+                            <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="50" cy="50" r="48" fill="none" stroke="#1e3a8a" stroke-width="3"/>
+                                <path d="M50 15 L70 25 L70 50 C70 65 50 80 50 80 C50 80 30 65 30 50 L30 25 Z" fill="#1e3a8a" opacity="0.9"/>
+                                <rect x="42" y="35" width="16" height="20" fill="#ffffff" rx="1"/>
+                                <rect x="44" y="37" width="12" height="2" fill="#1e3a8a"/>
+                                <polygon points="50,25 52,31 58,31 53,35 55,41 50,37 45,41 47,35 42,31 48,31" fill="#ffffff"/>
+                            </svg>
+                        `);
+                        sidebarLogo.src = fallbackLogo;
+                        navbarLogo.src = fallbackLogo;
+                    }
+                } else {
+                    // Default fallback
+                    const defaultLogo = 'data:image/svg+xml,' + encodeURIComponent(`
+                        <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="50" cy="50" r="48" fill="none" stroke="#1e3a8a" stroke-width="3"/>
+                            <path d="M50 15 L70 25 L70 50 C70 65 50 80 50 80 C50 80 30 65 30 50 L30 25 Z" fill="#1e3a8a" opacity="0.9"/>
+                            <rect x="42" y="35" width="16" height="20" fill="#ffffff" rx="1"/>
+                            <rect x="44" y="37" width="12" height="2" fill="#1e3a8a"/>
+                            <polygon points="50,25 52,31 58,31 53,35 55,41 50,37 45,41 47,35 42,31 48,31" fill="#ffffff"/>
+                        </svg>
+                    `);
+                    sidebarLogo.src = defaultLogo;
+                    navbarLogo.src = defaultLogo;
+                }
+            } catch (error) {
+                console.log('Using default logos');
+            }
+        });
+
+        // Sidebar toggle for mobile
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('show');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(e) {
+            const sidebar = document.querySelector('.sidebar');
+            const toggleBtn = document.querySelector('[onclick="toggleSidebar()"]');
+            
+            if (window.innerWidth < 768 && 
+                !sidebar.contains(e.target) && 
+                !toggleBtn.contains(e.target)) {
+                sidebar.classList.remove('show');
+            }
+        });
+
+        // Animate cards on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.dashboard-card, .card');
+            cards.forEach((card, index) => {
+                card.classList.add('card-loading');
+                
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                    card.classList.remove('card-loading');
+                }, index * 100);
+            });
+        });
+
+        // Enhanced navigation active state handling
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.sidebar .nav-link');
+            
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

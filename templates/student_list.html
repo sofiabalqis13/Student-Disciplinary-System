@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+
+{% block title %}View/Update/Delete - KPMIM Student Disciplinary System{% endblock %}
+
+{% block students_active %}active{% endblock %}
+{% block students_expanded %}true{% endblock %}
+{% block students_show %}show{% endblock %}
+{% block student_list_active %}active{% endblock %}
+
+{% block page_icon %}<i class="fas fa-list me-2 text-info"></i>{% endblock %}
+{% block page_title %}Student List{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1></i>View/Update/Delete</h1>
+            <p class="text-muted mb-0">Manage all students in the system</p>
+        </div>
+    </div>
+
+    <!-- Search -->
+    <div class="card dashboard-card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-6">
+                    <label for="search" class="form-label">Search by Student ID</label>
+                    <input type="text" class="form-control" id="search" name="search" placeholder="Enter Student ID" value="{{ request.GET.search }}">
+                </div>
+                <div class="col-md-6">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-search me-1"></i>Search
+                    </button>
+                    <a href="{% url 'student_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-undo me-1"></i>Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Students Table -->
+    <div class="card dashboard-card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-users me-2"></i>Students ({{ students.count }} total)</h5>
+            <div class="d-flex align-items-center">
+                <small class="text-muted me-3">Showing {{ students.count }} students</small>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            {% if students %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" id="studentsTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Student Info</th>
+                                <th>Program & Class</th>
+                                <th>Contact</th>
+                                <th>Academic Info</th>
+                                
+                                <th width="120">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar bg-primary rounded-circle me-3" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                                            <span class="text-white fw-bold">{{ student.name|first|upper }}</span>
+                                        </div>
+                                        <div>
+                                            <strong class="text-dark">{{ student.name }}</strong><br>
+                                            <small class="text-muted">ID: {{ student.student_id }}</small><br>
+                                            <small class="text-muted">IC: {{ student.ic_number }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <span class="badge bg-info text-white mb-1">{{ student.get_program_display }}</span><br>
+                                        <small class="text-muted">Class: {{ student.class_name }}</small><br>
+                                        <small class="text-muted">Semester: {{ student.semester }}</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <small class="text-muted d-block"><i class="fas fa-phone me-1"></i>{{ student.phone_number }}</small>
+                                        <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>{{ student.address|truncatechars:30 }}</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <small class="text-muted d-block"><strong>Advisor:</strong></small>
+                                        <small class="text-muted">{{ student.academic_advisor|truncatechars:25 }}</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-info" onclick="viewStudent({{ student.id }})" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-outline-warning" onclick="editStudent({{ student.id }})" title="Edit Student">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger" onclick="deleteStudent({{ student.id }}, '{{ student.name }}')" title="Delete Student">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-user-graduate fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Students Found</h5>
+                    <p class="text-muted">No students match your search criteria.</p>
+                    <a href="{% url 'add_student' %}" class="btn btn-success">
+                        <i class="fas fa-user-plus me-2"></i>Add Student
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Student Details Modal -->
+<div class="modal fade" id="studentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Student Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="studentModalBody">
+                <!-- Student details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong id="deleteStudentName"></strong>?</p>
+                <p class="text-muted"><small>This action cannot be undone.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                <form method="post" style="display: inline;" id="deleteForm">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-1"></i>Yes
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function viewStudent(studentId) {
+        // Load student details via AJAX
+        fetch(`/student/${studentId}/details/`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('studentModalBody').innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">Personal Information</h6>
+                            <p><strong>Name:</strong> ${data.name}</p>
+                            <p><strong>Student ID:</strong> ${data.student_id}</p>
+                            <p><strong>IC Number:</strong> ${data.ic_number}</p>
+                            <p><strong>Phone:</strong> ${data.phone_number}</p>
+                            <p><strong>Address:</strong> ${data.address}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary">Academic Information</h6>
+                            <p><strong>Program:</strong> ${data.program_display}</p>
+                            <p><strong>Class:</strong> ${data.class_name}</p>
+                            <p><strong>Semester:</strong> ${data.semester}</p>
+                            <p><strong>Academic Advisor:</strong> ${data.academic_advisor}</p>
+                        </div>
+                    </div>
+                `;
+                new bootstrap.Modal(document.getElementById('studentModal')).show();
+            })
+            .catch(error => {
+                alert('Error loading student details');
+            });
+    }
+
+    function editStudent(studentId) {
+        window.location.href = `/student/${studentId}/edit/`;
+    }
+
+    function deleteStudent(studentId, studentName) {
+        document.getElementById('deleteStudentName').textContent = studentName;
+        document.getElementById('deleteForm').action = `/student/${studentId}/delete/`;
+        new bootstrap.Modal(document.getElementById('deleteModal')).show();
+    }
+
+
+  
+</script>
+{% endblock %}

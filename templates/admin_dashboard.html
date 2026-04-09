@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - KPMIM Student Disciplinary System{% endblock %}
+
+{% block dashboard_active %}active{% endblock %}
+
+{% block page_icon %}<i class="fas fa-tachometer-alt me-2 text-primary"></i>{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                <i class="fas fa-info-circle me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <!-- Welcome Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1></i>Dashboard</h1>
+            <p class="text-muted mb-0">Welcome back, {{ user.get_full_name|default:user.username }}!</p>
+        </div>
+        <div class="text-end">
+            <small class="text-muted">{{ "now"|date:"l, F d, Y" }}</small>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card text-white" style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Total Students</div>
+                            <div class="h4 mb-0 font-weight-bold">{{ total_students|default:0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card text-white" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Pending Cases</div>
+                            <div class="h4 mb-0 font-weight-bold">{{ pending_cases|default:0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card text-white" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Under Review Cases</div>
+                            <div class="h4 mb-0 font-weight-bold">{{ under_review_cases|default:0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-search fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card text-white" style="background: linear-gradient(135deg, #27ae60 0%, #229954 100%);">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Resolved Cases</div>
+                            <div class="h4 mb-0 font-weight-bold">{{ resolved_cases|default:0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Recent Disciplinary Cases</h5>
+                    <a href="{% url 'disciplinary_cases' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_cases %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Case Type</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for case in recent_cases %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ case.student.name }}</strong><br>
+                                            <small class="text-muted">{{ case.student.student_id }}</small>
+                                        </td>
+                                        <td>{{ case.get_case_type_display }}</td>
+                                        <td>{{ case.incident_date|date:"M d, Y" }}</td>
+                                        <td>
+                                            {% if case.status == 'pending' %}
+                                                <span class="badge bg-warning">{{ case.get_status_display }}</span>
+                                            {% elif case.status == 'under_review' %}
+                                                <span class="badge bg-info">{{ case.get_status_display }}</span>
+                                            {% else %}
+                                                <span class="badge bg-success">{{ case.get_status_display }}</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No recent disciplinary cases found.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+<!-- Replace the Recent Students section in your admin_dashboard.html template -->
+
+<!-- Recent Students -->
+<div class="col-lg-6 mb-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Recent Students</h5>
+            <a href="{% url 'student_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+        </div>
+        <div class="card-body">
+            {% if recent_students %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Student Info</th>
+                                <th>Program</th>
+                                <th>Semester</th>
+                                <th>Class</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in recent_students %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar bg-primary rounded-circle me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                            <span class="text-white fw-bold">{{ student.name|first }}</span>
+                                        </div>
+                                        <div>
+                                            <strong>{{ student.name }}</strong><br>
+                                            <small class="text-muted">{{ student.student_id }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <small>{{ student.get_program_display|truncatechars:20 }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark">Sem {{ student.semester|default:"1" }}</span>
+                                </td>
+                                <td>
+                                    <small>{{ student.class_name }}</small>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-user-graduate fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No recent students found.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+    <!-- KPM Indera Mahkota Programs -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-graduation-cap me-2"></i> Programs</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <i class="fas fa-laptop-code text-primary me-2"></i>Diploma in Computer Science
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <i class="fas fa-calculator text-success me-2"></i>Diploma in Accounting
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <i class="fas fa-comments text-info me-2"></i>Diploma in English Communication
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <i class="fas fa-paint-brush text-warning me-2"></i>Diploma in Creative Digital Media
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

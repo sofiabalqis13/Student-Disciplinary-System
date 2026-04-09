@@ -1,0 +1,670 @@
+{% extends 'student_base.html' %}
+
+{% block title %}Student Dashboard - KPMIM{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-card {
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        transform: scale(0);
+        transition: transform 0.6s ease;
+    }
+
+    .stat-card:hover::before {
+        transform: scale(2);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .stat-card-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .stat-card-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        opacity: 0.9;
+    }
+
+    .stat-card-number {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-card-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .welcome-card {
+        background: linear-gradient(135deg, var(--primary-navy) 0%, #3b82f6 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .welcome-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -30%;
+        width: 100%;
+        height: 200%;
+        background: rgba(255, 255, 255, 0.1);
+        transform: rotate(15deg);
+        pointer-events: none;
+    }
+
+    .welcome-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .profile-info {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.75rem;
+        transition: all 0.2s ease;
+    }
+
+    .info-item:hover {
+        transform: translateX(5px);
+    }
+
+    .info-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--primary-navy);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin-right: 1rem;
+        font-size: 1.1rem;
+    }
+
+    .points-display {
+        background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        border: 2px solid #f59e0b;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .points-display::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .points-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .points-number {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #92400e;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .points-label {
+        color: #92400e;
+        font-weight: 600;
+        margin-top: 0.5rem;
+    }
+
+    .case-card {
+        border-left: 4px solid;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        margin-bottom: 1rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .case-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 0;
+        background: rgba(0,0,0,0.05);
+        transition: width 0.3s ease;
+    }
+
+    .case-card:hover::before {
+        width: 100%;
+    }
+
+    .case-card:hover {
+        transform: translateX(10px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .case-pending {
+        border-left-color: var(--warning-yellow);
+        background: linear-gradient(to right, rgba(217, 119, 6, 0.08), transparent);
+    }
+
+    .case-under-review {
+        border-left-color: #3b82f6;
+        background: linear-gradient(to right, rgba(59, 130, 246, 0.08), transparent);
+    }
+
+    .case-resolved {
+        border-left-color: var(--success-green);
+        background: linear-gradient(to right, rgba(5, 150, 105, 0.08), transparent);
+    }
+
+    .case-content {
+        position: relative;
+        z-index: 2;
+        padding: 1rem;
+    }
+
+    .badge-custom {
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .no-cases {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--secondary-gray);
+    }
+
+    .no-cases i {
+        font-size: 5rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.3;
+        color: var(--success-green);
+    }
+
+    .no-cases h5 {
+        color: var(--success-green);
+        margin-bottom: 1rem;
+    }
+
+    .progress-ring {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 1rem;
+    }
+
+    .progress-ring-circle {
+        transition: stroke-dasharray 0.35s;
+        transform: rotate(-90deg);
+        transform-origin: 50% 50%;
+    }
+
+    @media (max-width: 768px) {
+        .stat-card {
+            margin-bottom: 1rem;
+        }
+        
+        .welcome-card {
+            padding: 1.5rem;
+        }
+        
+        .points-number {
+            font-size: 2.5rem;
+        }
+    }
+
+    /* Animation delays for staggered entrance */
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stat-card:nth-child(3) { animation-delay: 0.3s; }
+    .stat-card:nth-child(4) { animation-delay: 0.4s; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Welcome Section -->
+<div class="welcome-card">
+    <div class="welcome-content">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="mb-2">
+                    <i class="fas fa-user-graduate me-2"></i>Welcome back, {{ student.name }}!
+                </h2>
+                <p class="mb-2 opacity-75">Student ID: {{ student.student_id }}</p>
+                <p class="mb-0 opacity-75">{{ student.get_program_display }} - {{ student.class_name }}</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="progress-ring">
+                    <svg class="progress-ring" width="120" height="120">
+                        <circle
+                            class="progress-ring-circle"
+                            stroke="rgba(255,255,255,0.3)"
+                            stroke-width="8"
+                            fill="transparent"
+                            r="52"
+                            cx="60"
+                            cy="60"/>
+                        <circle
+                            class="progress-ring-circle"
+                            stroke="rgba(255,255,255,0.8)"
+                            stroke-width="8"
+                            fill="transparent"
+                            r="52"
+                            cx="60"
+                            cy="60"
+                            stroke-dasharray="0 327"
+                            stroke-linecap="round"/>
+                    </svg>
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                        <div style="font-size: 1.2rem; font-weight: bold;">{{ resolved_cases }}</div>
+                        <div style="font-size: 0.8rem; opacity: 0.8;">Resolved</div>
+                    </div>
+                </div>
+                {% if last_login %}
+                    <small class="opacity-75">Last login: {{ last_login|date:"M d, Y H:i" }}</small>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card" style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);">
+            <div class="stat-card-content">
+                <div class="stat-card-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div class="stat-card-number">{{ total_cases }}</div>
+                <div class="stat-card-label">Total Cases</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+            <div class="stat-card-content">
+                <div class="stat-card-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-card-number">{{ pending_cases }}</div>
+                <div class="stat-card-label">Pending</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);">
+            <div class="stat-card-content">
+                <div class="stat-card-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="stat-card-number">{{ under_review_cases }}</div>
+                <div class="stat-card-label">Under Review</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card" style="background: linear-gradient(135deg, #059669 0%, #047857 100%);">
+            <div class="stat-card-content">
+                <div class="stat-card-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-card-number">{{ resolved_cases }}</div>
+                <div class="stat-card-label">Resolved</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Profile Information -->
+    <div class="col-lg-4 mb-4">
+        <div class="dashboard-card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Profile Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="profile-info">
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Full Name</small>
+                            <strong>{{ student.name }}</strong>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-id-badge"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Student ID</small>
+                            <strong>{{ student.student_id }}</strong>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Program</small>
+                            <strong>{{ student.get_program_display }}</strong>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Class</small>
+                            <strong>{{ student.class_name }}</strong>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Semester</small>
+                            <strong>{{ student.semester }}</strong>
+                        </div>
+                    </div>
+                    <div class="info-item mb-0">
+                        <div class="info-icon">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Academic Advisor</small>
+                            <strong>{{ student.academic_advisor }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Disciplinary Points -->
+                <div class="points-display mt-3">
+                    <div class="points-content">
+                        <div class="points-number">{{ total_points }}</div>
+                        <div class="points-label">
+                            <i class="fas fa-exclamation-triangle me-1"></i>
+                            Disciplinary Points
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Disciplinary Cases -->
+    <div class="col-lg-8 mb-4">
+        <div class="dashboard-card">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-gavel me-2"></i>My Disciplinary Cases</h5>
+                <span class="badge bg-light text-dark">{{ total_cases }} Total</span>
+            </div>
+            <div class="card-body">
+                {% if disciplinary_cases %}
+                    <div class="row">
+                        {% for case in disciplinary_cases %}
+                        <div class="col-12">
+                            <div class="case-card {% if case.status == 'pending' %}case-pending{% elif case.status == 'under_review' %}case-under-review{% else %}case-resolved{% endif %}">
+                                <div class="case-content">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <h6 class="mb-1 fw-bold">{{ case.get_case_type_display }}</h6>
+                                            <small class="text-muted">Case ID: {{ case.case_id }}</small>
+                                        </div>
+                                        <div class="text-end">
+                                            {% if case.status == 'pending' %}
+                                                <span class="badge badge-custom bg-warning text-dark">
+                                                    <i class="fas fa-clock me-1"></i>{{ case.get_status_display }}
+                                                </span>
+                                            {% elif case.status == 'under_review' %}
+                                                <span class="badge badge-custom bg-info">
+                                                    <i class="fas fa-search me-1"></i>{{ case.get_status_display }}
+                                                </span>
+                                            {% else %}
+                                                <span class="badge badge-custom bg-success">
+                                                    <i class="fas fa-check-circle me-1"></i>{{ case.get_status_display }}
+                                                </span>
+                                            {% endif %}
+                                            <br>
+                                            <small class="text-muted">{{ case.incident_date|date:"M d, Y" }}</small>
+                                        </div>
+                                    </div>
+                                    <p class="mb-2 text-muted">{{ case.description|truncatechars:120 }}</p>
+                                    {% if case.location %}
+                                        <small class="text-muted">
+                                            <i class="fas fa-map-marker-alt me-1"></i>{{ case.location }}
+                                        </small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- View All Cases Button -->
+                    <div class="text-center mt-3">
+                        <a href="#" class="btn btn-outline-primary">
+                            <i class="fas fa-eye me-2"></i>View All Cases
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="no-cases">
+                        <i class="fas fa-check-circle"></i>
+                        <h5>Excellent Record!</h5>
+                        <p class="mb-0">You have a clean disciplinary record. Keep up the outstanding work!</p>
+                        <small class="text-muted">Continue following college policies and maintaining good conduct.</small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions Section -->
+<div class="row">
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3 col-6 mb-3">
+                        <a href="#" class="btn btn-outline-primary w-100 py-3">
+                            <i class="fas fa-user fa-2x d-block mb-2"></i>
+                            <span>Update Profile</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <a href="#" class="btn btn-outline-primary w-100 py-3">
+                            <i class="fas fa-file-alt fa-2x d-block mb-2"></i>
+                            <span>View Transcript</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <a href="#" class="btn btn-outline-primary w-100 py-3">
+                            <i class="fas fa-question-circle fa-2x d-block mb-2"></i>
+                            <span>Get Help</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <a href="#" class="btn btn-outline-primary w-100 py-3">
+                            <i class="fas fa-download fa-2x d-block mb-2"></i>
+                            <span>Download Reports</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate progress ring
+        const progressRing = document.querySelector('.progress-ring-circle:last-of-type');
+        if (progressRing) {
+            const totalCases = {{ total_cases }};
+            const resolvedCases = {{ resolved_cases }};
+            const radius = 52;
+            const circumference = radius * 2 * Math.PI;
+            
+            progressRing.style.strokeDasharray = `${circumference} ${circumference}`;
+            progressRing.style.strokeDashoffset = circumference;
+            
+            setTimeout(() => {
+                const progress = totalCases > 0 ? (resolvedCases / totalCases) : 0;
+                const offset = circumference - progress * circumference;
+                progressRing.style.strokeDashoffset = offset;
+            }, 500);
+        }
+        
+        // Animate statistics cards with staggered entrance
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px) scale(0.9)';
+            
+            setTimeout(() => {
+                card.style.transition = 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0) scale(1)';
+            }, 200 + index * 150);
+        });
+        
+        // Animate case cards
+        const caseCards = document.querySelectorAll('.case-card');
+        caseCards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateX(-30px)';
+            
+            setTimeout(() => {
+                card.style.transition = 'all 0.5s ease-out';
+                card.style.opacity = '1';
+                card.style.transform = 'translateX(0)';
+            }, 800 + index * 100);
+        });
+        
+        // Add hover effects to info items
+        const infoItems = document.querySelectorAll('.info-item');
+        infoItems.forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.background = 'rgba(30, 58, 138, 0.05)';
+                this.style.borderRadius = '8px';
+                this.style.padding = '0.5rem';
+                this.style.margin = '0.25rem 0';
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                this.style.background = 'transparent';
+                this.style.padding = '0';
+                this.style.margin = '0.75rem 0';
+            });
+        });
+        
+        // Add click feedback to quick action buttons
+        const quickActionBtns = document.querySelectorAll('.card-body .btn');
+        quickActionBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                // Create ripple effect
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                this.appendChild(ripple);
+                
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+    });
+    
+    // Add CSS for ripple effect
+    const style = document.createElement('style');
+    style.textContent = `
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(30, 58, 138, 0.3);
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            pointer-events: none;
+        }
+        
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        
+        .btn {
+            position: relative;
+            overflow: hidden;
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+{% endblock %}

@@ -1,0 +1,378 @@
+{% extends 'base.html' %}
+
+{% block title %}Generate Reports - KPMIM Student Disciplinary System{% endblock %}
+
+{% block reports_active %}active{% endblock %}
+
+{% block page_icon %}<i class="fas fa-chart-bar me-2 text-info"></i>{% endblock %}
+{% block page_title %}Generate Reports{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1></i>Generate Reports</h1>
+            <p class="text-muted mb-0">Disciplinary cases analysis for {{ month_name }} {{ selected_year }}</p>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="card dashboard-card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label for="month" class="form-label">Month</label>
+                    <select class="form-select" id="month" name="month">
+                        {% for value, label in month_choices %}
+                            <option value="{{ value }}" {% if selected_month == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="year" class="form-label">Year</label>
+                    <select class="form-select" id="year" name="year">
+                        {% for value, label in year_choices %}
+                            <option value="{{ value }}" {% if selected_year == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-1"> </i>Search
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <a href="{% url 'download_report' %}?month={{ selected_month }}&year={{ selected_year }}&format=excel" class="btn btn-success"
+                        class = "btn"
+                        style="background-color:#800000; border-color:#800000; color:#ffffff;">
+                        <i class="fas fa-download me-1"></i>Download Report
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card" style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white;">
+                <div class="card-body text-center">
+                    <div class="mb-2">
+                        <i class="fas fa-clipboard-list fa-2x"></i>
+                    </div>
+                    <h3 class="mb-1">{{ total_cases }}</h3>
+                    <p class="mb-0">Total Cases This Month</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card" style="background: linear-gradient(135deg, #27ae60 0%, #229954 100%); color: white;">
+                <div class="card-body text-center">
+                    <div class="mb-2">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                    <h3 class="mb-1">{{ resolved_cases }}</h3>
+                    <p class="mb-0">Resolved Cases</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white;">
+                <div class="card-body text-center">
+                    <div class="mb-2">
+                        <i class="fas fa-clock fa-2x"></i>
+                    </div>
+                    <h3 class="mb-1">{{ pending_cases }}</h3>
+                    <p class="mb-0">Pending Cases</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card" style="background: linear-gradient(135deg, #3498db 0%, #9b59b6 100%); color: white;">
+                <div class="card-body text-center">
+                    <div class="mb-2">
+                        <i class="fas fa-search fa-2x"></i>
+                    </div>
+                    <h3 class="mb-1">{{ under_review_cases }}</h3>
+                    <p class="mb-0">Under Review</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row mb-4">
+        <!-- Weekly Cases Chart -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header" style="background-color: #800000; color: white;">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Weekly Cases</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="weeklyChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Case Types Chart -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header" style="background-color: #800000; color: white;">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Case Types</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="caseTypesChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Case Status Chart -->
+    <div class="row mb-4">
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header" style="background-color: #800000; color: white;">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Case Status</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="caseStatusChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Program Statistics -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header" style="background-color: #800000; color: white;">
+                    <h5 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>Program Statistics</h5>
+                </div>
+                <div class="card-body">
+                    {% if program_stats %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Program</th>
+                                        <th>Cases</th>
+                                        <th>Students Involved</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for stat in program_stats %}
+                                    <tr>
+                                        <td>{{ stat.program_display }}</td>
+                                        <td><span class="badge bg-warning">{{ stat.case_count }}</span></td>
+                                        <td><span class="badge bg-info">{{ stat.student_count }}</span></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">No program data available for this month.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Case Types Breakdown -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header" style="background-color: #800000; color: white;">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Case Types Breakdown</h5>
+                </div>
+                <div class="card-body">
+                    {% if case_type_stats %}
+                        <div class="row">
+                            {% for stat in case_type_stats %}
+                            <div class="col-md-4 mb-3">
+                                <div class="card border-start border-4 border-primary">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h6 class="card-title">{{ stat.type_display }}</h6>
+                                                <h4 class="text-primary">{{ stat.count }}</h4>
+                                            </div>
+                                            <div class="text-end">
+                                                <span class="badge bg-primary">{{ stat.percentage }}%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">No case types data available for this month.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Cases -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header" style="background-color: #800000; color: white;">
+                    <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Recent Cases This Month</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_cases %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Case ID</th>
+                                        <th>Student</th>
+                                        <th>Type</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for case in recent_cases %}
+                                    <tr>
+                                        <td><strong>{{ case.case_id }}</strong></td>
+                                        <td>
+                                            <div>
+                                                <strong>{{ case.student.name }}</strong><br>
+                                                <small class="text-muted">{{ case.student.student_id }}</small>
+                                            </div>
+                                        </td>
+                                        <td>{{ case.get_case_type_display }}</td>
+                                        <td>{{ case.incident_date|date:"M d, Y" }}</td>
+                                        <td>
+                                            {% if case.status == 'pending' %}
+                                                <span class="badge bg-warning">{{ case.get_status_display }}</span>
+                                            {% elif case.status == 'under_review' %}
+                                                <span class="badge bg-info">{{ case.get_status_display }}</span>
+                                            {% else %}
+                                                <span class="badge bg-success">{{ case.get_status_display }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ case.description|truncatechars:80 }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No cases found for {{ month_name }} {{ selected_year }}.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script>
+    // Weekly Cases Chart
+    const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
+    const weeklyChart = new Chart(weeklyCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ weekly_labels|safe }},
+            datasets: [{
+                label: 'Cases',
+                data: {{ weekly_data|safe }},
+                backgroundColor: '#3498db',
+                borderColor: '#2980b9',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+
+    // Case Types Chart
+    const caseTypesCtx = document.getElementById('caseTypesChart').getContext('2d');
+    const caseTypesChart = new Chart(caseTypesCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ case_type_labels|safe }},
+            datasets: [{
+                data: {{ case_type_data|safe }},
+                backgroundColor: [
+                    '#3498db',
+                    '#27ae60', 
+                    '#f39c12',
+                    '#e74c3c',
+                    '#9b59b6',
+                    '#1abc9c',
+                    '#34495e',
+                    '#f1c40f',
+                    '#e67e22',
+                    '#95a5a6'
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // Case Status Chart
+    const statusCtx = document.getElementById('caseStatusChart').getContext('2d');
+    const statusChart = new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Resolved', 'Pending', 'Under Review'],
+            datasets: [{
+                data: [{{ resolved_cases }}, {{ pending_cases }}, {{ under_review_cases }}],
+                backgroundColor: [
+                    '#27ae60',
+                    '#f39c12', 
+                    '#3498db'
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
